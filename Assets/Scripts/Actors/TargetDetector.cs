@@ -8,13 +8,12 @@ namespace Assets.Scripts
 {
     public class TargetDetector : MonoBehaviour
     {
-        public event Action OnDetect;
-        public event Action OnLose;
-
         [SerializeField] [Range(5, 100)] private float _detectionRadius;
         [SerializeField] private LayerMask _targetLayerMask;
 
         private UpdateService _updateService;
+        private List<Transform> _visibleTargets = new List<Transform>();
+        private const int _closestTargetIndex = 0;
 
         public Transform Target { get; private set; }
         public float DetectionRadius => _detectionRadius;
@@ -25,10 +24,32 @@ namespace Assets.Scripts
 
         private void FindTarget()
         {
+            Detect();
+            Sort();
+            SetTarget();
+        }
+
+        private void SetTarget() => Target = _visibleTargets.Count > 0 ? _visibleTargets[_closestTargetIndex] : null;
+
+        private void Sort()
+        {
+            for (int i = 0; i < _visibleTargets.Count; i++)
+            {
+                float distanceToVisibleTarget = Vector3.Distance(_visibleTargets[i].position, transform.position);
+                float distanceToClosestTarget = Vector3.Distance(_visibleTargets[_closestTargetIndex].position, transform.position);
+
+                if (distanceToVisibleTarget < distanceToClosestTarget)
+                {
+                    _visibleTargets[_closestTargetIndex] = _visibleTargets[i];
+                }
+            }
+        }
+
+        private void Detect()
+        {
             Vector3 rayOffset = new Vector3(transform.position.x, 2.5f, transform.position.z);
             Collider[] targetsInRadius = Physics.OverlapSphere(transform.position, _detectionRadius, _targetLayerMask);
-            List<Transform> visibleTargets = new List<Transform>();
-            visibleTargets.Clear();
+            _visibleTargets.Clear();
 
             foreach (Collider target in targetsInRadius)
             {
@@ -37,41 +58,8 @@ namespace Assets.Scripts
 
                 if (!Physics.Raycast(rayOffset, directionToTarget, distanceToTarget))
                 {
-                    visibleTargets.Add(target.transform);
+                    _visibleTargets.Add(target.transform);
                 }
-            }
-
-            if (visibleTargets.Count > 0)
-            {
-                SetTarget(visibleTargets[0]);
-            }
-            else
-            {
-                LooseTarget();
-            }
-
-            for (int i = 0; i < visibleTargets.Count; i++)
-            {
-                if (Vector3.Distance(visibleTargets[i].position, transform.position) < Vector3.Distance(Target.position, transform.position))
-                    Target = visibleTargets[i];
-            }
-        }
-
-        private void LooseTarget()
-        {
-            if (Target != null)
-            {
-                Target = null;
-                OnLose?.Invoke();
-            }
-        }
-
-        private void SetTarget(Transform target)
-        {
-            if (Target == null)
-            {
-                Target = target;
-                OnDetect?.Invoke();
             }
         }
 

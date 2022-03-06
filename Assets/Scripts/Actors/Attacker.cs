@@ -9,25 +9,25 @@ namespace Assets.Scripts
     {
         [SerializeField] [Range(1, 1000)] private int _damage;
         [SerializeField] [Range(0.1f, 5)] private float _cooldownSpeed;
+        [SerializeField] private Transform _bulletPoint;
+        [SerializeField] private Bullet _bulletPrefab;
+        [SerializeField] [Range(10, 100)] private float _bulletPoolSize;
         private const float _cooldownLimit = 1;
         private IAttackScheme _attackScheme;
         private BulletFactory _bulletFactory;
         private List<Bullet> _bullets = new List<Bullet>();
-        [SerializeField] private Transform _bulletPoint;
-        [SerializeField] private Bullet _bulletPrefab;
-        [SerializeField] [Range(10, 100)] private float _bulletPoolSize;
 
         public float Damage => _damage;
         public float CooldownSpeed => _cooldownSpeed;
         public float CooldownLimit => _cooldownLimit;
 
-        [Inject] private void Construct(BulletFactory bulletFactory)
-        {
-            _bulletFactory = bulletFactory;
-            InitPool();
-        }
+        [Inject] private void Construct(BulletFactory bulletFactory) => _bulletFactory = bulletFactory;
 
-        private void OnEnable() => _attackScheme?.Apply(this);
+        private void OnEnable()
+        {
+            InitPool();
+            _attackScheme?.Apply(this);
+        }
 
         public void Fire()
         {

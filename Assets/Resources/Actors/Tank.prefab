@@ -237,7 +237,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rotatableFrame: {fileID: 6195472865879023140}
-  _aimSpeed: 5
+  _aimSpeed: 8
 --- !u!114 &8454401458685459538
 MonoBehaviour:
   m_ObjectHideFlags: 0
