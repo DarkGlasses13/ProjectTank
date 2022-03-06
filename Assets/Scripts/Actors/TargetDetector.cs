@@ -33,14 +33,17 @@ namespace Assets.Scripts
 
         private void Sort()
         {
-            for (int i = 0; i < _visibleTargets.Count; i++)
+            if (_visibleTargets.Count > 1)
             {
-                float distanceToVisibleTarget = Vector3.Distance(_visibleTargets[i].position, transform.position);
-                float distanceToClosestTarget = Vector3.Distance(_visibleTargets[_closestTargetIndex].position, transform.position);
-
-                if (distanceToVisibleTarget < distanceToClosestTarget)
+                for (int i = 0; i < _visibleTargets.Count; i++)
                 {
-                    _visibleTargets[_closestTargetIndex] = _visibleTargets[i];
+                    float distanceToVisibleTarget = Vector3.Distance(_visibleTargets[i].position, transform.position);
+                    float distanceToClosestTarget = Vector3.Distance(_visibleTargets[_closestTargetIndex].position, transform.position);
+
+                    if (distanceToVisibleTarget < distanceToClosestTarget)
+                    {
+                        _visibleTargets[_closestTargetIndex] = _visibleTargets[i];
+                    }
                 }
             }
         }
